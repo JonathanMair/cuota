@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "cuota"
+version = "0.1.0"
+description = "tools for estimating social security and income tax payments"
+authors = ["Jonathan Mair <jonathan.mair@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "3.13"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
