@@ -9,7 +9,12 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "3.13"
 pydantic = "^2.9.2"
+pytest = "^8.3.3"
+ruff = "^0.7.2"
 
+
+[tool.poetry.group.dev.dependencies]
+setuptools = {version = "^75.3.0", extras = ["V"]}
 
 [build-system]
 requires = ["poetry-core"]
