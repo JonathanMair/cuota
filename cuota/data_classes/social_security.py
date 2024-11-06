@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import Iterable
 
 
-
 class Band(BaseModel):
     floor: int
     ceiling: int
@@ -12,7 +11,7 @@ class Band(BaseModel):
         if amount < self.floor:
             return 0
         if amount > self.ceiling:
-            return (self.ceiling- self.floor) * self.rate
+            return (self.ceiling - self.floor) * self.rate
         return int((amount - self.floor) * self.rate)
 
 
