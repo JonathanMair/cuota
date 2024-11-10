@@ -1,6 +1,6 @@
 import logging
 from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel
-from cuota.importers.import_bandgroup import get_social_security_bands, get_income_tax_bands
+from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands
 
 logger = logging.getLogger()
 

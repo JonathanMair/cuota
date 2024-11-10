@@ -7,11 +7,17 @@ fn = "irpf_tramos.csv"
 fn2 = "cuotas2025.csv"
 
 
-def get_income_tax_bands(path: Path = data_path.joinpath(fn)) -> BandsGroup:
+def get_income_tax_bands(path: Path = data_path.joinpath(fn), allowance: int = 5500) -> BandsGroup:
+    """
+    Get income tax band data from a spreadsheet, at Path specified, or from a default.
+    :param path:
+    :param allowance:
+    :return:
+    """
     data = pd.read_csv(path, header=0, sep=",")
     bands = [Band(floor=floor, ceiling=ceiling, rate=rate/100)
              for floor, ceiling, rate in data.itertuples(index=False)]
-    return BandsGroup(bands=bands, year=2025)
+    return BandsGroup(bands=bands, year=2025, allowance=allowance)
 
 
 def get_social_security_bands(path: Path = data_path.joinpath(fn2)) -> BandsGroup:

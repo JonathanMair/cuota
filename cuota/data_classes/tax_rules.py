@@ -50,14 +50,13 @@ class Band(BaseModel):
 class BandsGroup(BaseModel):
     bands: List[Band]
     year: int = 2024
-    allowance: int = None
+    allowance: int = 0
 
     @model_validator(mode="after")
     def check_bands(self) -> Self:
         error_msg = []
-        if self.allowance is not None:
-            if self.allowance < 0:
-                error_msg.append("Allowance must be > 0.")
+        if self.allowance < 0:
+            error_msg.append("Allowance must be > 0.")
         b = self.bands
         if b[0].floor != 0:
             error_msg.append("Floor of first band must == 0")
@@ -70,13 +69,11 @@ class BandsGroup(BaseModel):
         return self
 
     def get_payable(self, amount: int) -> int:
-        if self.allowance is not None:
-            amount -= self.allowance
-        return int(sum([b.get_payable(amount) for b in self.bands]))
+        return int(sum([b.get_payable(amount - self.allowance) for b in self.bands]))
 
 
 class TaxModel(BaseModel):
-    tax_rules: List # should make an interface to constrain these
+    tax_rules: List[BandsGroup]  # TODO: make an interface to constrain these
 
     def get_payable(self, amount: int) -> int:
         payable = 0
@@ -85,3 +82,4 @@ class TaxModel(BaseModel):
             amount -= r_payable
             payable += r_payable
         return payable
+
