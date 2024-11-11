@@ -17,14 +17,15 @@ def get_income_tax_bands(path: Path = data_path.joinpath(fn), allowance: int = 5
     data = pd.read_csv(path, header=0, sep=",")
     bands = [Band(floor=floor, ceiling=ceiling, rate=rate/100)
              for floor, ceiling, rate in data.itertuples(index=False)]
-    return BandsGroup(bands=bands, year=2025, allowance=allowance)
+    return BandsGroup(bands=bands, year=2025, allowance=allowance, name="Income Tax")
 
 
-def get_social_security_bands(path: Path = data_path.joinpath(fn2)) -> BandsGroup:
+def get_social_security_bands(path: Path = data_path.joinpath(fn2), annualized: bool=True) -> BandsGroup:
+    x = 12 if annualized else 1
     data = pd.read_csv(path, header=0, sep=",")
     for row in data.itertuples(index=False):
         a, b, c = list(row)
-    bands = [Band(floor=floor, ceiling=ceiling, flat_charge=flat_charge)
+    bands = [Band(floor=floor * x, ceiling=ceiling * x, flat_charge=flat_charge * x)
              for floor, ceiling, flat_charge in data.itertuples(index=False)]
-    return BandsGroup(bands=bands, year=2025)
+    return BandsGroup(bands=bands, year=2025, name="Social Security")
 

@@ -35,12 +35,10 @@ def test_BandsGroup_flat_charge():
     # payable = 2000
     floors = [0, 10000, 20000]
     ceilings = [10000, 20000, 30000]
-    flat_charges = [0, 0.1, 0.2]
-    income = 25000
+    flat_charges = [250, 400, 500]
+    income = 28000
     bands = [Band(floor=floor, ceiling=ceiling, flat_charge=flat_charge) for
              floor, ceiling, flat_charge in zip(floors, ceilings, flat_charges)]
-    logger.debug(bands)
-    logger.debug(type(bands))
     bandsgroup = BandsGroup(bands=bands)
     assert bandsgroup.get_payable(income) == 1150
 

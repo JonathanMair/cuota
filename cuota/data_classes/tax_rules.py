@@ -38,19 +38,28 @@ class Band(BaseModel):
         return self
 
     def get_payable(self, amount: int) -> int:
-        if amount < self.floor:
-            interval = 0
-        elif amount > self.ceiling:
-            interval = self.ceiling - self.floor
-        else:
-            interval = amount - self.floor
-        return interval * self.rate if self.rate is not None else self.flat_charge
+        if self.rate is None: # then this is a flat charge band
+            if self.ceiling >= amount > self.floor:
+                print(1)
+                return self.flat_charge
+            else:
+                print(2)
+                return 0
+        else:  # this is a % band
+            ## TODO: Currently doing something weird...
+            if amount < self.floor:  # amount is below this band, nothing due
+                return 0
+            elif amount > self.ceiling:  # amount is above ceiling, apply % to whole band
+                return int(self.ceiling - self.floor * self.rate)
+            else:  # amount falls within the band, apply rate proportionally
+                return int(amount - self.floor * self.rate)
 
 
 class BandsGroup(BaseModel):
     bands: List[Band]
     year: int = 2024
     allowance: int = 0
+    name: str = None
 
     @model_validator(mode="after")
     def check_bands(self) -> Self:
