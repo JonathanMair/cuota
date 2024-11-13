@@ -14,17 +14,16 @@ def test_Band():
 def test_BandsGroup():
     # sample case:
     # 0-10k 0%, 10-20k: 10%, 20-30k: 20%
-    # income = 25k => 0 + 1000 + 1000
+    # income = 35k - 10k allowance = 25k => 0 + 1000 + 1000
     # payable = 2000
     floors = [0, 10000, 20000]
     ceilings = [10000, 20000, 30000]
     rates = [0, 0.1, 0.2]
-    income = 25000
+    allowance = 10000
+    income = 35000
     bands = [Band(floor=floor, ceiling=ceiling, rate=rate) for
              floor, ceiling, rate in zip(floors, ceilings, rates)]
-    logger.debug(bands)
-    logger.debug(type(bands))
-    bandsgroup = BandsGroup(bands=bands)
+    bandsgroup = BandsGroup(bands=bands, allowance=allowance)
     assert bandsgroup.get_payable(income) == 2000
 
 
@@ -47,6 +46,8 @@ def test_import_bandgroup_social_security():
     ss_bands = get_social_security_bands()
     print(ss_bands.get_payable(33000))
     assert True
+
+
 
 
 def test_tax_model():

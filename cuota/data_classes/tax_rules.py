@@ -40,19 +40,17 @@ class Band(BaseModel):
     def get_payable(self, amount: int) -> int:
         if self.rate is None: # then this is a flat charge band
             if self.ceiling >= amount > self.floor:
-                print(1)
                 return self.flat_charge
             else:
-                print(2)
                 return 0
         else:  # this is a % band
             ## TODO: Currently doing something weird...
             if amount < self.floor:  # amount is below this band, nothing due
                 return 0
             elif amount > self.ceiling:  # amount is above ceiling, apply % to whole band
-                return int(self.ceiling - self.floor * self.rate)
+                return int((self.ceiling - self.floor) * self.rate)
             else:  # amount falls within the band, apply rate proportionally
-                return int(amount - self.floor * self.rate)
+                return int((amount - self.floor) * self.rate)
 
 
 class BandsGroup(BaseModel):
