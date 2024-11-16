@@ -9,10 +9,11 @@ class Calculator:
 
     metrics = {
         "PAYABLE": "payable",
-        "_NET_THIS": "net of this metric",
-        "_NET_SEQ": "net in sequence",
-        "_EFFECTIVE_THIS": "effective rate",
-        "_EFFECTIVE_SEQ": "effective in sequence"
+        "PAYABLE_SEQ": "payable in sequence",
+        "NET_THIS": "net of this metric",
+        "NET_SEQ": "net in sequence",
+        "EFFECTIVE_THIS": "effective rate",
+        "EFFECTIVE_SEQ": "effective in sequence"
     }
 
     def __init__(self, tax_model: TaxModel | None=None):
@@ -36,10 +37,14 @@ class Calculator:
         columns = pd.MultiIndex.from_tuples(tuples=tuples)
         results = []
 
-        # for each rule: payable, net after application of this rule
+        # for each rule: payable after application of this rule
         for i, rule in enumerate(rules, 1):
             rule_fn = np.vectorize(lambda gross: rule.get_payable(gross))
             results.append(rule_fn(gross_array))
+
+        # for each rule: payable applying rules in sequence
+        results.append(results[0])  # because the first in the sequence will be the same as first item in prev operation
+        [results.append(results[i - 1] + results[i]) for i in range(1, len(rules))]
 
         # for each rule: income net of this rule only
         for i, rule in enumerate(rules, 1):
@@ -54,16 +59,20 @@ class Calculator:
             working_array = net.copy()
 
         # for each rule: effective rate after applying this rule only
-        for i, rule in enumerate(rules):
-            results.append(np.divide(results[i], gross_array))
+        results.extend([results[i] / gross_array for i in range(len(rules))])
 
         # for each rule: effective rate after applying rule in sequence
-        for i, rule in enumerate(rules):
-            results.append(np.divide(results[i + 5], gross_array))
+        running_total = np.zeros(len(gross_array))
+        [results.append(
+            (results[i + len(rules)] + running_total) / gross_array)
+            for i, _ in enumerate(rules)
+        ]
+
 
         # columns and index provided backwards then transposed because df constructor expects data arrays to be rows
         df = pd.DataFrame(results, columns=gross_array, index=columns).T
         return df
+
 
 
 

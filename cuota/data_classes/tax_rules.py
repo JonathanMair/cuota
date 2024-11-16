@@ -81,6 +81,7 @@ class BandsGroup(BaseModel):
 
 class TaxModel(BaseModel):
     tax_rules: List[BandsGroup]  # TODO: make an interface to constrain these
+    year: int = 2025
 
     def get_payable(self, amount: int) -> int:
         payable = 0
@@ -89,4 +90,5 @@ class TaxModel(BaseModel):
             amount -= r_payable
             payable += r_payable
         return payable
+
 
