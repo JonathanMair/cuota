@@ -55,7 +55,6 @@ class Band(BaseModel):
 
 class BandsGroup(BaseModel):
     bands: List[Band]
-    year: int = 2024
     allowance: int = 0
     name: str = None
 

@@ -9,8 +9,19 @@ import re
 from pydantic import BaseModel
 from typing import List
 
-class Comparator(BaseModel):
-    models: List[TaxModel] = None
+class Comparator(): # maybe add pydantic later
+
+    def __init__(self, models: List[TaxModel] | None):
+        if len(models) > 0:
+            self.models = models
+            calculators = [Calculator(model) for model in models]
+            dfs = [calc.calculate() for calc in calculators]
+            self.dfs = dfs
+            years = [model.year for model in models]
+            self.years = years
+            self.data = pd.concat(
+                [df.assign(year=[year] * len(df.index)) for df, year in zip(dfs, years)]
+            )
 
 
 
