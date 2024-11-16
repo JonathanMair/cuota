@@ -2,7 +2,7 @@ from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel
 from pathlib import Path
 import pandas as pd
 import re
-from typing import List
+from typing import List, Tuple
 from pathlib import Path
 import pickle
 
@@ -34,16 +34,25 @@ def get_social_security_bands(path: Path = data_path.joinpath(fn2), annualized: 
     return BandsGroup(bands=bands, name="Social Security")
 
 
+def get_from_files(regex: str) \
+        -> List[Tuple]:
+    """Get all files that match a pattern from the data dir and return a list of BandsGroups
+    """
+    data_path = Path(__file__).parent.parent.parent.joinpath("data")
+    p = Path(data_path).glob('**/*')
+    files_matches = [(f,  re.match(regex, str(f)).group(1)) for f in p if re.match(regex, str(f))]
+    if "cuotas" in regex:
+        return [(get_social_security_bands(path=f, annualized=True), year) for f, year in files_matches]
+    else:
+        return [(get_income_tax_bands(path=f), year) for f, year in files_matches]
+
 def get_all_social_security_data(as_tax_model: bool=True, save_as: None | str=None) \
         -> List[TaxModel] | List[BandsGroup]:
     """Get all files that match a pattern from the data dir and return a list of TaxModels (defualt)
     or a list of BandsGroups
     """
-    data_path = Path(__file__).parent.parent.parent.joinpath("data")
-    p = Path(data_path).glob('**/*')
-    regex_ = r"^.*cuotas(20[0-9][0-9]).*\.csv$"
-    files_matches = [(f,  re.match(regex_, str(f)).group(1)) for f in p if re.match(regex_, str(f))]
-    years_bandsgroups = [(get_social_security_bands(path=f, annualized=True), year) for f, year in files_matches]
+    regex = r"^.*cuotas(20[0-9][0-9]).*\.csv$"
+    years_bandsgroups = get_from_files(regex=regex)
     if not as_tax_model:
         data = [bandsgroup for bandsgroup, _ in years_bandsgroups]
         if save_as is not None:
@@ -56,3 +65,17 @@ def get_all_social_security_data(as_tax_model: bool=True, save_as: None | str=No
             with open(data_path.joinpath(f"social_security_tax_rules_{save_as}.pickle"), "wb") as f:
                 pickle.dump(data, f)
         return data
+
+def get_spanish_data_by_year() -> List[TaxModel]:
+    regex_ss = r"^.*cuotas(20[0-9][0-9]).*\.csv$"
+    regex_irpf = r"^.*irpf_tramos(20[0-9][0-9]).*\.csv$"
+    ss_years = get_from_files(regex=regex_ss)
+    irpf_years = get_from_files(regex_irpf)
+    combined = [s + i for s, i in zip(ss_years, irpf_years)]
+    if [year for _, year in ss_years] != [year for _, year in irpf_years]:
+        raise Exception("social security and irpf years do not match, please check files")
+    data = [TaxModel(tax_rules=[ss, irpf], year=year) for ss, _, irpf, year in combined]
+    with open(data_path.joinpath(f"spanish_tax_rules.pickle"), "wb") as f:
+        pickle.dump(data, f)
+    return data
+
