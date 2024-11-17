@@ -1,3 +1,5 @@
+from math import floor
+
 from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel
 from pathlib import Path
 import pandas as pd
@@ -79,3 +81,11 @@ def get_spanish_data_by_year() -> List[TaxModel]:
         pickle.dump(data, f)
     return data
 
+# TODO: fetch the data from the irpf_tramos files and add the appropriate bandsgroups to the taxmodels
+def get_spanish_regimen_general() -> List[TaxModel]:
+    years = [2022, 2023, 2024, 2025]
+    rate = 6.35
+    band = Band(floor=0, ceiling=100000, rate=rate)
+    bandsgroup = BandsGroup(bands=[bands], name="Régimen General")
+
+    return [TaxModel(tax_rules=bandsgroup, year=year) for year in years]
