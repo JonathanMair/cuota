@@ -33,14 +33,18 @@ class Band(BaseModel):
             raise ValueError(f"{error_msg_joined}")
         return self
 
-    def get_payable(self, amount: int) -> int:
-        if self.rate is None: # then this is a flat charge band
+    def get_payable(self, amount: int, exclusive: bool=False) -> int:
+        if self.rate is not None:
             if self.ceiling >= amount > self.floor:
                 return self.flat_charge
             else:
                 return 0
-        else:  # this is a % band
-            ## TODO: Currently doing something weird...
+        if exclusive:
+            if self.ceiling >= amount > self.floor:
+                return self.rate * amount
+            else:
+                return 0
+        else:  # this is a non-exclusive % band
             if amount < self.floor:  # amount is below this band, nothing due
                 return 0
             elif amount > self.ceiling:  # amount is above ceiling, apply % to whole band
