@@ -86,7 +86,7 @@ def get_spanish_regimen_general() -> List[TaxModel]:
     years = [2022, 2023, 2024, 2025]
     rate = 6.35  / 100 # approximate % of gross charged for ss
     cap = 4500 * 12  # cap beyond which no additional charge is made
-    band1 = Band(floor=0, ceiling=cap, rate=rate)
+    band1 = Band(floor=0, ceiling=cap, rate=rate, exclusive=True)
     band2 = Band(floor=cap, celing=200000, flat_charge=rate * cap)
     ss_bandsgroup = BandsGroup(bands=[band1, band2], name="Régimen General")
     regex_irpf = r"^.*irpf_tramos(20[0-9][0-9]).*\.csv$"

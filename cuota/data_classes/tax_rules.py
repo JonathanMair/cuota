@@ -10,6 +10,7 @@ class Band(BaseModel):
     ceiling: int = 200000
     rate: float | None = None
     flat_charge: int | None = None
+    exclusive: bool=False  # if True only get payable from the single relevant band
 
     @model_validator(mode="after")
     def check_floor_ceiling(self) -> Self:
@@ -33,15 +34,15 @@ class Band(BaseModel):
             raise ValueError(f"{error_msg_joined}")
         return self
 
-    def get_payable(self, amount: int, exclusive: bool=False) -> int:
-        if self.rate is not None:
+    def get_payable(self, amount: int) -> int:
+        if self.rate is None:
             if self.ceiling >= amount > self.floor:
                 return self.flat_charge
             else:
                 return 0
-        if exclusive:
+        if self.exclusive:
             if self.ceiling >= amount > self.floor:
-                return self.rate * amount
+                return int(self.rate * amount)
             else:
                 return 0
         else:  # this is a non-exclusive % band
@@ -57,7 +58,6 @@ class BandsGroup(BaseModel):
     bands: List[Band]
     allowance: int=0
     name: str=None
-    exclusive: bool=False  # if True only get payable from the single relevant band
 
     @model_validator(mode="after")
     def check_bands(self) -> Self:
