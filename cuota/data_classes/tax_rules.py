@@ -6,12 +6,8 @@ logger = logging.getLogger()
 
 
 class Band(BaseModel):
-    """
-    A band in a tax rule, with floor, ceiling and EITHER rate (0<rate<=1) or a flat_charge to apply to the interval
-    between floor and ceiling.
-    """
-    floor: int
-    ceiling: int
+    floor: int = 0
+    ceiling: int = 200000
     rate: float | None = None
     flat_charge: int | None = None
 
@@ -55,8 +51,9 @@ class Band(BaseModel):
 
 class BandsGroup(BaseModel):
     bands: List[Band]
-    allowance: int = 0
-    name: str = None
+    allowance: int=0
+    name: str=None
+    exclusive: bool=False  # if True only get payable from the single relevant band
 
     @model_validator(mode="after")
     def check_bands(self) -> Self:

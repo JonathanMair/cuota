@@ -84,8 +84,12 @@ def get_spanish_data_by_year() -> List[TaxModel]:
 # TODO: fetch the data from the irpf_tramos files and add the appropriate bandsgroups to the taxmodels
 def get_spanish_regimen_general() -> List[TaxModel]:
     years = [2022, 2023, 2024, 2025]
-    rate = 6.35
-    band = Band(floor=0, ceiling=100000, rate=rate)
-    bandsgroup = BandsGroup(bands=[bands], name="Régimen General")
-
-    return [TaxModel(tax_rules=bandsgroup, year=year) for year in years]
+    rate = 6.35  / 100 # approximate % of gross charged for ss
+    cap = 4500 * 12  # cap beyond which no additional charge is made
+    band1 = Band(floor=0, ceiling=cap, rate=rate)
+    band2 = Band(floor=cap, celing=200000, flat_charge=rate * cap)
+    ss_bandsgroup = BandsGroup(bands=[band1, band2], name="Régimen General")
+    regex_irpf = r"^.*irpf_tramos(20[0-9][0-9]).*\.csv$"
+    irpf_years = get_from_files(regex_irpf)
+    irpf_dict = {int(year): bg for bg, year in irpf_years}
+    return [TaxModel(tax_rules=[ss_bandsgroup, irpf_dict[year]], year=year) for year in years]
