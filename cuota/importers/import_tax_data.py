@@ -1,5 +1,6 @@
 from math import floor
 
+from cuota.data_classes.interfaces import AllowanceFunction
 from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel
 from pathlib import Path
 import pandas as pd
@@ -8,12 +9,12 @@ from typing import List, Tuple
 from pathlib import Path
 import pickle
 
-data_path = Path(__file__).parent.parent.parent.joinpath("data")
+DATA_PATH = Path(__file__).parent.parent.parent.joinpath("data")
 fn = "irpf_tramos.csv"
 fn2 = "cuotas2025.csv"
 
 
-def get_income_tax_bands(path: Path = data_path.joinpath(fn), allowance: int = 5500) -> BandsGroup:
+def get_income_tax_bands(path: Path = DATA_PATH.joinpath(fn), allowance: int | AllowanceFunction = 5500) -> BandsGroup:
     """
     Get income tax band data from a spreadsheet, at Path specified, or from a default.
     :param path:
@@ -26,7 +27,7 @@ def get_income_tax_bands(path: Path = data_path.joinpath(fn), allowance: int = 5
     return BandsGroup(bands=bands, year=2025, allowance=allowance, name="Income Tax")
 
 
-def get_social_security_bands(path: Path = data_path.joinpath(fn2), annualized: bool=True) -> BandsGroup:
+def get_social_security_bands(path: Path = DATA_PATH.joinpath(fn2), annualized: bool=True) -> BandsGroup:
     x = 12 if annualized else 1
     data = pd.read_csv(path, header=0, sep=",")
     for row in data.itertuples(index=False):
@@ -58,13 +59,13 @@ def get_all_social_security_data(as_tax_model: bool=True, save_as: None | str=No
     if not as_tax_model:
         data = [bandsgroup for bandsgroup, _ in years_bandsgroups]
         if save_as is not None:
-            with open(data_path.joinpath(f"social_security_bandsgroups_{save_as}.pickle"), "wb") as f:
+            with open(DATA_PATH.joinpath(f"social_security_bandsgroups_{save_as}.pickle"), "wb") as f:
                 pickle.dump(data, f)
         return data
     else:
         data = [TaxModel(year=year, tax_rules=[taxrules]) for taxrules, year in years_bandsgroups]
         if save_as is not None:
-            with open(data_path.joinpath(f"social_security_tax_rules_{save_as}.pickle"), "wb") as f:
+            with open(DATA_PATH.joinpath(f"social_security_tax_rules_{save_as}.pickle"), "wb") as f:
                 pickle.dump(data, f)
         return data
 
@@ -77,7 +78,7 @@ def get_spanish_data_by_year() -> List[TaxModel]:
     if [year for _, year in ss_years] != [year for _, year in irpf_years]:
         raise Exception("social security and irpf years do not match, please check files")
     data = [TaxModel(tax_rules=[ss, irpf], year=year) for ss, _, irpf, year in combined]
-    with open(data_path.joinpath(f"spanish_tax_rules.pickle"), "wb") as f:
+    with open(DATA_PATH.joinpath(f"spanish_tax_rules.pickle"), "wb") as f:
         pickle.dump(data, f)
     return data
 

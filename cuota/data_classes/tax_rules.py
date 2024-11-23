@@ -106,7 +106,7 @@ class BandsGroup(BaseModel):
     """
 
     bands: List[Band]
-    allowance: int = 0 | AllowanceFunction
+    allowance: int | AllowanceFunction = 0
     name: str = None
 
     @model_validator(mode="after")
@@ -126,8 +126,9 @@ class BandsGroup(BaseModel):
             Self: The validated BandsGroup instance.
         """
         error_msg = []
-        if self.allowance < 0 and type(self.allowance) != AllowanceFunction:
-            error_msg.append("Allowance must be > 0 or class that implements the AllowanceFunction interface.")
+        if not isinstance(self.allowance, AllowanceFunction):
+            if self.allowance < 0:
+                error_msg.append("Allowance must be > 0 or class that implements the AllowanceFunction interface.")
         b = self.bands
         if b[0].floor != 0:
             error_msg.append("Floor of first band must == 0")
