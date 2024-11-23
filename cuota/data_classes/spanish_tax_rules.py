@@ -8,7 +8,7 @@ from pathlib import Path
 class SpanishAutonomoAllowance(AllowanceFunction):
 
     def function(self, taxable: int) -> int:
-        min_all = SpanishMinAllowance.function(0)
+        min_all = SpanishMinAllowance.function(taxable=0)
         return min_all + 2000 if taxable * 0.7 < 2000 else min_all + int(taxable * 0.7)
 
 class SpanishMinAllowance(AllowanceFunction):

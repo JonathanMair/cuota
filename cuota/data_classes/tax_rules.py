@@ -1,5 +1,7 @@
 from pydantic import BaseModel, model_validator, ValidationInfo
-from typing import List, Self
+from typing import List, Self, Dict
+import pandas as pd
+import numpy as np
 
 from cuota.data_classes.interfaces import AllowanceFunction
 
@@ -151,8 +153,8 @@ class BandsGroup(BaseModel):
             int: The total payable amount across all bands.
         """
         def _get_allowance(amount: int) -> int:
-            if type(self.allowance) == AllowanceFunction:
-                return self.allowance.function(amount)
+            if isinstance(self.allowance, AllowanceFunction):
+                return self.allowance.function(taxable=amount)
             else:
                 return self.allowance
         return int(sum([b.get_payable(amount - _get_allowance(amount)) for b in self.bands]))
@@ -174,19 +176,29 @@ class TaxModel(BaseModel):
     year: int=2025
     name: str="TaxModel"
 
-    def get_payable(self, amount: int) -> int:
-        """
-        Calculates the total tax payable across all bands groups.
-
-        Args:
-            amount (int): The amount to calculate the tax for.
-
-        Returns:
-            int: The total tax payable.
-        """
-        payable = 0
+    def results(self, amount: int) -> Dict:
+        dict = {}
+        taxable = amount
+        total = 0
         for r in self.tax_rules:
-            r_payable = r.get_payable(amount)
-            amount -= r_payable
-            payable += r_payable
-        return payable
+            payable = r.get_payable(amount=taxable)
+            dict[r.name] = payable
+            taxable -= payable
+            total += payable
+        dict["total payable"] = total
+        dict["take home"] = taxable
+        dict["effective rate"] = total / amount
+        return dict
+
+    def df_cols(self) -> tuple:
+        cols = list(self.results(amount=10).keys())[:-1]
+        return cols, ["effective rate"]
+
+    def sample(self, taxable_array: np.array):
+        cols = list(self.results(amount=1).keys())
+        process = np.vectorize(lambda amount: self.results(amount).values())
+        raw_results = list(process(taxable_array))
+        return pd.DataFrame(data=raw_results, index=taxable_array, columns=cols)
+
+
+
