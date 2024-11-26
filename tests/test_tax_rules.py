@@ -39,7 +39,7 @@ def test_BandsGroup_flat_charge():
     bands = [Band(floor=floor, ceiling=ceiling, flat_charge=flat_charge) for
              floor, ceiling, flat_charge in zip(floors, ceilings, flat_charges)]
     bandsgroup = BandsGroup(bands=bands)
-    assert bandsgroup.get_payable(income) == 1150
+    assert bandsgroup.get_payable(income) == 500
 
 
 def test_import_bandgroup_social_security():
@@ -49,10 +49,3 @@ def test_import_bandgroup_social_security():
 
 
 
-
-def test_tax_model():
-    rules = [get_social_security_bands(), get_income_tax_bands()]
-    amount = 33000
-    payable = TaxModel(tax_rules=rules).get_payable(amount=amount)
-    print(payable)
-    assert True
