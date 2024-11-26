@@ -10,11 +10,12 @@ import pandas as pd
 
 
 class BritishPersonalAllowance(AllowanceFunction):
-    def function(amount: int) -> int:
-        if amount < 100000:
+
+    def function(self, taxable: int) -> int:
+        if taxable < 100000:
             allowance = 12570
         else:
-            difference = amount - 100000
+            difference = taxable - 100000
             if difference < 12570:
                 allowance = 12570 - difference
             else:
@@ -36,4 +37,10 @@ class UkEmployeeTaxModel(TaxModel):
     def __init__(self):
         ni = get_UK_employee_NI()
         it = get_UK_income_tax()
-        super().__init__(ax_rules=[ni, it], year=2025, non_sequential=True, name="UK employee")
+        super().__init__(tax_rules=[ni, it], year=2025, non_sequential=True, name="UK employee")
+
+
+
+if __name__ == "__main__":
+    uk = UkEmployeeTaxModel()
+    uk.results(40000)

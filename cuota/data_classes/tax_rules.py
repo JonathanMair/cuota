@@ -167,11 +167,11 @@ class TaxModel(BaseModel):
     Attributes:
         tax_rules (List[BandsGroup]): A list of BandsGroup instances defining the rules.
         year (int): The tax year. Defaults to 2025.
+        non_sequential (bool): apply rules independently instead of sequentially
 
     Methods:
         get_payable: Calculates the total tax payable based on the provided amount.
     """
-
     tax_rules: List[BandsGroup]
     year: int=2025
     name: str="TaxModel"
