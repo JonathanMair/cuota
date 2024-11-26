@@ -172,9 +172,10 @@ class TaxModel(BaseModel):
         get_payable: Calculates the total tax payable based on the provided amount.
     """
 
-    tax_rules: List[BandsGroup]  # TODO: make an interface to constrain these
+    tax_rules: List[BandsGroup]
     year: int=2025
     name: str="TaxModel"
+    non_sequential: bool=False  # apply rules independently instead of sequentially
 
     def results(self, amount: int) -> Dict:
         dict = {}
@@ -183,7 +184,8 @@ class TaxModel(BaseModel):
         for r in self.tax_rules:
             payable = r.get_payable(amount=taxable)
             dict[r.name] = payable
-            taxable -= payable
+            if not self.non_sequential:
+                taxable -= payable
             total += payable
         dict["total payable"] = total
         dict["take home"] = taxable

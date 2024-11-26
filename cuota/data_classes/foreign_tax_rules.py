@@ -26,3 +26,14 @@ def get_UK_income_tax() -> BandsGroup:
     path = DATA_PATH.joinpath("uk_income_tax_2025.csv")
     return get_income_tax_bands(path=path, allowance=BritishPersonalAllowance())
 
+def get_UK_employee_NI() -> BandsGroup:
+    path = DATA_PATH.joinpath("uk_employee_NI2025.csv")
+    return get_income_tax_bands(path=path, allowance=0)
+
+
+class UkEmployeeTaxModel(TaxModel):
+
+    def __init__(self):
+        ni = get_UK_employee_NI()
+        it = get_UK_income_tax()
+        super().__init__(ax_rules=[ni, it], year=2025, non_sequential=True, name="UK employee")
