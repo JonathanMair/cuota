@@ -20,6 +20,7 @@ watchdog = "^6.0.0"
 sphinx = "^8.1.3"
 pyscaffold = "^4.6"
 seaborn = "^0.13.2"
+pycurrenciestools = "^1.0.2"
 
 
 [tool.poetry.group.dev.dependencies]

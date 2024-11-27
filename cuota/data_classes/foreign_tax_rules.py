@@ -3,6 +3,8 @@ from cuota.importers.import_tax_data import get_social_security_bands, get_incom
 
 from pathlib import Path
 import pandas as pd
+from PyCurrenciesTools import get_exchange_rate
+from PyCurrenciesTools.data import CurrenciesTags
 
 
 # https://www.gov.uk/government/publications/rates-and-allowances-income-tax/income-tax-rates-and-allowances-current-and-past
@@ -44,3 +46,11 @@ class UkEmployeeTaxModel(TaxModel):
 if __name__ == "__main__":
     uk = UkEmployeeTaxModel()
     uk.results(40000)
+    gbp_tag = CurrenciesTags.sterling
+    eur_tag = CurrenciesTags.euro
+
+    try:
+        rate = get_exchange_rate(gbp_tag, eur_tag)
+        print(f"The exchange rate from USD to EUR is: {rate}")
+    except Exception as e:
+        print(f"Error: {e}")
