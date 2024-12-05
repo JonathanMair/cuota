@@ -92,6 +92,10 @@ class Band(BaseModel):
             else:  # amount falls within the band, apply rate proportionally
                 return int((amount - self.floor) * self.rate)
 
+    def convert(self, rate):
+        self.floor = int(self.floor * rate)
+        self.ceiling = int(self.ceiling * rate)
+        self.flat_charge = (self.flat_charge * rate) if self.flat_charge is not None else None
 
 class BandsGroup(BaseModel):
     """
@@ -152,13 +156,15 @@ class BandsGroup(BaseModel):
         Returns:
             int: The total payable amount across all bands.
         """
-        def _get_allowance(amount: int) -> int:
+        def _get_allowance(_amount: int) -> int:
             if isinstance(self.allowance, AllowanceFunction):
-                return self.allowance.function(taxable=amount)
+                return self.allowance.function(taxable=_amount)
             else:
                 return self.allowance
         return int(sum([b.get_payable(amount - _get_allowance(amount)) for b in self.bands]))
 
+    def convert(self, rate: float):
+        [band.convert(rate) for band in self.bands]
 
 class TaxModel(BaseModel):
     """
@@ -188,19 +194,32 @@ class TaxModel(BaseModel):
                 taxable -= payable
             total += payable
         dict["total payable"] = total
-        dict["take home"] = taxable
+        dict["take home"] = amount - total
         dict["effective rate"] = total / amount
         return dict
 
-    def df_cols(self) -> tuple:
-        cols = list(self.results(amount=10).keys())[:-1]
-        return cols, ["effective rate"]
+    def marginal_rate(self, amount: int, delta: int=100) -> float:
+        r1 = self.results(amount=amount)["total payable"]
+        r2 = self.results(amount=amount + delta)["total payable"]
+        return (r2 - r1) / delta
 
-    def sample(self, taxable_array: np.array):
-        cols = list(self.results(amount=1).keys())
-        process = np.vectorize(lambda amount: self.results(amount).values())
+
+    def df_cols(self) -> List:
+        cols = list(self.sample(taxable_array=[10]).keys())
+        return cols
+
+    def sample(self, taxable_array: np.array) -> pd.DataFrame:
+        cols = (list(self.results(amount=1).keys()))
+        process = np.vectorize(lambda amount:
+                               self.results(amount).values()
+                               )
         raw_results = list(process(taxable_array))
-        return pd.DataFrame(data=raw_results, index=taxable_array, columns=cols)
+        df = pd.DataFrame(data=raw_results, index=taxable_array, columns=cols)
+        marg_rate_fn = np.vectorize(lambda amount: self.marginal_rate(amount))
+        marg_rates = marg_rate_fn(taxable_array)
+        df["marginal rate"] = marg_rates
+        return df
 
-
+    def convert(self, rate: float):
+        [rule.convert(rate) for rule in self.tax_rules]
 

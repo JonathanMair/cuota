@@ -25,7 +25,7 @@ class SpanishAutonomoModel(TaxModel):
         irpf_path = DATA_PATH.joinpath(f"irpf_tramos{year}.csv")
         irpf = get_income_tax_bands(path=irpf_path, allowance=SpanishAutonomoAllowance())
         tax_rules = [ss, irpf]
-        super().__init__(tax_rules=tax_rules, year=year)
+        super().__init__(tax_rules=tax_rules, year=year, name="Spanish autónomo")
 
 class SpanishRegimenGeneralModel(TaxModel):
 
@@ -38,4 +38,4 @@ class SpanishRegimenGeneralModel(TaxModel):
         irpf_path = DATA_PATH.joinpath(f"irpf_tramos{year}.csv")
         irpf = get_income_tax_bands(path=irpf_path, allowance=5500)
         tax_rules = [ss_bandsgroup, irpf]
-        super().__init__(tax_rules=tax_rules, year=year)
+        super().__init__(tax_rules=tax_rules, year=year, name="Spanish employee")

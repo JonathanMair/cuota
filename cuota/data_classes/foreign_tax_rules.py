@@ -10,6 +10,15 @@ from PyCurrenciesTools.data import CurrenciesTags
 # https://www.gov.uk/government/publications/rates-and-allowances-income-tax/income-tax-rates-and-allowances-current-and-past
 # https://www.gov.uk/government/publications/rates-and-allowances-national-insurance-contributions/rates-and-allowances-national-insurance-contributions
 
+def get_conversion_rate() -> float:
+    gbp_tag = CurrenciesTags.sterling
+    eur_tag = CurrenciesTags.euro
+    rate = 0
+    try:
+        rate = get_exchange_rate(gbp_tag, eur_tag)
+    except Exception as e:
+        print(f"Error: {e}")
+    return rate
 
 class BritishPersonalAllowance(AllowanceFunction):
 
@@ -31,7 +40,11 @@ def get_UK_income_tax() -> BandsGroup:
 
 def get_UK_employee_NI() -> BandsGroup:
     path = DATA_PATH.joinpath("uk_employee_NI2025.csv")
-    return get_income_tax_bands(path=path, allowance=0)
+    return get_income_tax_bands(path=path, allowance=0, name="National Insurance")
+
+def get_UK_selfemployed_NI() -> BandsGroup:
+    path = DATA_PATH.joinpath("uk_self-employed_NI2025.csv")
+    return get_income_tax_bands(path=path, allowance=0, name="National Insurance")
 
 
 class UkEmployeeTaxModel(TaxModel):
@@ -40,17 +53,17 @@ class UkEmployeeTaxModel(TaxModel):
         ni = get_UK_employee_NI()
         it = get_UK_income_tax()
         super().__init__(tax_rules=[ni, it], year=2025, non_sequential=True, name="UK employee")
+        self.convert(rate=get_conversion_rate())
 
+class UkSelfEmployedTaxModel(TaxModel):
+
+    def __init__(self):
+        ni = get_UK_selfemployed_NI()
+        it = get_UK_income_tax()
+        super().__init__(tax_rules=[ni, it], year=2025, non_sequential=True, name="UK self-employed")
+        self.convert(rate=get_conversion_rate())
 
 
 if __name__ == "__main__":
     uk = UkEmployeeTaxModel()
-    uk.results(40000)
-    gbp_tag = CurrenciesTags.sterling
-    eur_tag = CurrenciesTags.euro
 
-    try:
-        rate = get_exchange_rate(gbp_tag, eur_tag)
-        print(f"The exchange rate from USD to EUR is: {rate}")
-    except Exception as e:
-        print(f"Error: {e}")
