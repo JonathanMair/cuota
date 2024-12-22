@@ -1,5 +1,5 @@
-from pydantic import BaseModel, model_validator, ValidationInfo
-from typing import List, Self, Dict
+from pydantic import BaseModel, model_validator, ValidationInfo, ConfigDict
+from typing import List, Self, Dict, Union
 import pandas as pd
 import numpy as np
 
@@ -116,7 +116,7 @@ class BandsGroup(BaseModel):
         convert(rate: float):
             Adjusts all bands in the group by the given rate.
     """
-
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     bands: List[Band]
     allowance: int | AllowanceFunction = 0
     name: str = None
