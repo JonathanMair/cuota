@@ -2,18 +2,14 @@ from cuota.data_classes.interfaces import AllowanceFunction
 from cuota.data_classes.tax_rules import TaxModel, BandsGroup, Band
 from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands, DATA_PATH
 
+from pathlib import Path
+
 
 class SpanishAutonomoAllowance(AllowanceFunction):
 
     def function(self, taxable: int) -> int:
-        if self.allowance is None:
-            allowance = min_all = SpanishMinAllowance().function(taxable=0)
-        else:
-            allowance = self.allowance
-        return allowance + 2000 if taxable * 0.7 > 2000 else allowance + int(taxable * 0.7)
-
-    def __init__(self, allowance: int | None=None):
-        self.allowance = allowance
+        min_all = SpanishMinAllowance().function(taxable=0)
+        return min_all + 2000 if taxable * 0.7 > 2000 else min_all + int(taxable * 0.7)
 
 class SpanishMinAllowance(AllowanceFunction):
 
