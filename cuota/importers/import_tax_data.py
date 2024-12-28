@@ -1,5 +1,3 @@
-from math import floor
-
 from cuota.data_classes.interfaces import AllowanceFunction
 from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel
 import importlib.resources as resources

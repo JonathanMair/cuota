@@ -1,5 +1,5 @@
-from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel, AllowanceFunction
-from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands
+from cuota.data_classes.tax_rules import BandsGroup, TaxModel, AllowanceFunction
+from cuota.importers.import_tax_data import get_income_tax_bands
 
 from PyCurrenciesTools import get_exchange_rate
 from PyCurrenciesTools.data import CurrenciesTags

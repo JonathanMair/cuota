@@ -1,13 +1,18 @@
 from cuota.data_classes.interfaces import AllowanceFunction
 from cuota.data_classes.tax_rules import TaxModel, BandsGroup, Band
-from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands, get_file
+from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands
 
 
 class SpanishAutonomoAllowance(AllowanceFunction):
 
+    def __init__(self, allowance: int | None = None):
+        self.allowance = allowance
+
     def function(self, taxable: int) -> int:
-        min_all = SpanishMinAllowance().function(taxable=0)
+        min_all = SpanishMinAllowance().function(taxable=0) if self.allowance is None else self.allowance
         return min_all + 2000 if taxable * 0.7 > 2000 else min_all + int(taxable * 0.7)
+
+
 
 class SpanishMinAllowance(AllowanceFunction):
 
@@ -17,11 +22,11 @@ class SpanishMinAllowance(AllowanceFunction):
 
 class SpanishAutonomoModel(TaxModel):
 
-    def __init__(self, year: int):
+    def __init__(self, year: int, allowance: int=0):
         ss_path = f"cuotas{year}.csv"
         ss = get_social_security_bands(fn=ss_path, annualized=True)
         irpf_path = f"irpf_tramos{year}.csv"
-        irpf = get_income_tax_bands(fn=irpf_path, allowance=SpanishAutonomoAllowance())
+        irpf = get_income_tax_bands(fn=irpf_path, allowance=SpanishAutonomoAllowance(allowance=allowance))
         tax_rules = [ss, irpf]
         super().__init__(tax_rules=tax_rules, year=year, name="Spanish autónomo")
 

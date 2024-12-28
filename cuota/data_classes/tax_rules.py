@@ -1,4 +1,4 @@
-from pydantic import BaseModel, model_validator, ValidationInfo
+from pydantic import BaseModel, model_validator, ConfigDict
 from typing import List, Self, Dict
 import pandas as pd
 import numpy as np
@@ -33,6 +33,7 @@ class Band(BaseModel):
     rate: float | None = None
     flat_charge: int | None = None
     exclusive: bool = False
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @model_validator(mode="after")
     def check_floor_ceiling(self) -> Self:
@@ -120,6 +121,7 @@ class BandsGroup(BaseModel):
     bands: List[Band]
     allowance: int | AllowanceFunction = 0
     name: str = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     @model_validator(mode="after")
     def check_bands(self) -> Self:
