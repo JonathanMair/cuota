@@ -5,6 +5,7 @@ description = "tools for estimating social security and income tax payments"
 authors = ["Jonathan Mair <jonathan.mair@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+include = ["cuota/resources/*"]
 
 [tool.poetry.dependencies]
 python = "3.13.0"
@@ -21,6 +22,7 @@ sphinx = "^8.1.3"
 pyscaffold = "^4.6"
 seaborn = "^0.13.2"
 pycurrenciestools = "^1.0.2"
+importlib = "^1.0.4"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -29,3 +31,5 @@ setuptools = {version = "^75.3.0", extras = ["V"]}
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+

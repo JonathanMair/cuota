@@ -1,8 +1,6 @@
 from cuota.data_classes.tax_rules import Band, BandsGroup, TaxModel, AllowanceFunction
-from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands, DATA_PATH
+from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands
 
-from pathlib import Path
-import pandas as pd
 from PyCurrenciesTools import get_exchange_rate
 from PyCurrenciesTools.data import CurrenciesTags
 
@@ -35,16 +33,16 @@ class BritishPersonalAllowance(AllowanceFunction):
 
 
 def get_UK_income_tax() -> BandsGroup:
-    path = DATA_PATH.joinpath("uk_income_tax_2025.csv")
-    return get_income_tax_bands(path=path, allowance=BritishPersonalAllowance())
+    path = "uk_income_tax_2025.csv"
+    return get_income_tax_bands(fn=path, allowance=BritishPersonalAllowance())
 
 def get_UK_employee_NI() -> BandsGroup:
-    path = DATA_PATH.joinpath("uk_employee_NI2025.csv")
-    return get_income_tax_bands(path=path, allowance=0, name="National Insurance")
+    path = "uk_employee_NI2025.csv"
+    return get_income_tax_bands(fn=path, allowance=0, name="National Insurance")
 
 def get_UK_selfemployed_NI() -> BandsGroup:
-    path = DATA_PATH.joinpath("uk_self-employed_NI2025.csv")
-    return get_income_tax_bands(path=path, allowance=0, name="National Insurance")
+    path = "uk_self-employed_NI2025.csv"
+    return get_income_tax_bands(fn=path, allowance=0, name="National Insurance")
 
 
 class UkEmployeeTaxModel(TaxModel):

@@ -1,8 +1,6 @@
 from cuota.data_classes.interfaces import AllowanceFunction
 from cuota.data_classes.tax_rules import TaxModel, BandsGroup, Band
-from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands, DATA_PATH
-
-from pathlib import Path
+from cuota.importers.import_tax_data import get_social_security_bands, get_income_tax_bands, get_file
 
 
 class SpanishAutonomoAllowance(AllowanceFunction):
@@ -20,10 +18,10 @@ class SpanishMinAllowance(AllowanceFunction):
 class SpanishAutonomoModel(TaxModel):
 
     def __init__(self, year: int):
-        ss_path = DATA_PATH.joinpath(f"cuotas{year}.csv")
-        ss = get_social_security_bands(path=ss_path, annualized=True)
-        irpf_path = DATA_PATH.joinpath(f"irpf_tramos{year}.csv")
-        irpf = get_income_tax_bands(path=irpf_path, allowance=SpanishAutonomoAllowance())
+        ss_path = f"cuotas{year}.csv"
+        ss = get_social_security_bands(fn=ss_path, annualized=True)
+        irpf_path = f"irpf_tramos{year}.csv"
+        irpf = get_income_tax_bands(fn=irpf_path, allowance=SpanishAutonomoAllowance())
         tax_rules = [ss, irpf]
         super().__init__(tax_rules=tax_rules, year=year, name="Spanish autónomo")
 
@@ -35,7 +33,7 @@ class SpanishRegimenGeneralModel(TaxModel):
         band1 = Band(floor=0, ceiling=cap, rate=rate, exclusive=True)
         band2 = Band(floor=cap, celing=200000, flat_charge=rate * cap)
         ss_bandsgroup = BandsGroup(bands=[band1, band2], name="Régimen General")
-        irpf_path = DATA_PATH.joinpath(f"irpf_tramos{year}.csv")
-        irpf = get_income_tax_bands(path=irpf_path, allowance=5500)
+        irpf_path = f"irpf_tramos{year}.csv"
+        irpf = get_income_tax_bands(fn=irpf_path, allowance=5500)
         tax_rules = [ss_bandsgroup, irpf]
         super().__init__(tax_rules=tax_rules, year=year, name="Spanish employee")
