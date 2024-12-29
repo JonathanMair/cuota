@@ -276,7 +276,7 @@ class TaxModel(BaseModel):
         marginal_rates = marg_rate_fn(taxable_array)
         df["marginal rate"] = marginal_rates
 
-        return df
+        return IncomeSample(df=df)
 
     def convert(self, rate: float):
         [rule.convert(rate) for rule in self.tax_rules]
@@ -286,4 +286,18 @@ class TaxModel(BaseModel):
         cols = list(self.sample(taxable_array=[10]).keys())
         return cols
 
-# todo: add Sample class and implement plot
+
+class IncomeSample(BaseModel):
+    df: pd.DataFrame
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    def plot_metric(self, ax: plt.Axes, metric: str):
+        df = self.df
+        ax.plot(df.index, df[metric], label=metric)
+        return ax
+
+    #  todo: fix this
+    def plot_all(self, ax: plt.Axes):
+        df = self.df
+        for metric in df.columns:
+           self.plot_metric(ax=ax, metric=metric)
