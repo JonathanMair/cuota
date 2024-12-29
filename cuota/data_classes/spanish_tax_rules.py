@@ -13,7 +13,6 @@ class SpanishAutonomoAllowance(AllowanceFunction):
         return min_all + 2000 if taxable * 0.7 > 2000 else min_all + int(taxable * 0.7)
 
 
-
 class SpanishMinAllowance(AllowanceFunction):
 
     def function(self, taxable: int) -> int:
@@ -22,7 +21,7 @@ class SpanishMinAllowance(AllowanceFunction):
 
 class SpanishAutonomoModel(TaxModel):
 
-    def __init__(self, year: int, allowance: int=0):
+    def __init__(self, year: int, allowance: int | None=None):
         ss_path = f"cuotas{year}.csv"
         ss = get_social_security_bands(fn=ss_path, annualized=True)
         irpf_path = f"irpf_tramos{year}.csv"
