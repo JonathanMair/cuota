@@ -1810,6 +1810,17 @@ files = [
 ]
 
 [[package]]
+name = "multipledispatch"
+version = "1.0.0"
+description = "Multiple dispatch"
+optional = false
+python-versions = "*"
+files = [
+    {file = "multipledispatch-1.0.0-py3-none-any.whl", hash = "sha256:0c53cd8b077546da4e48869f49b13164bebafd0c2a5afceb6bb6a316e7fb46e4"},
+    {file = "multipledispatch-1.0.0.tar.gz", hash = "sha256:5c839915465c68206c3e9c473357908216c28383b425361e5d144594bf85a7e0"},
+]
+
+[[package]]
 name = "narwhals"
 version = "1.19.1"
 description = "Extremely lightweight compatibility layer between dataframe libraries"
@@ -3807,4 +3818,4 @@ test = ["websockets"]
 [metadata]
 lock-version = "2.0"
 python-versions = "3.13.0"
-content-hash = "6fcf070128426c9d2a2bfcd96ce0a4fd6e3bde238c48e1a59038295577f5eae4"
+content-hash = "6310e2c6bd62949cc534f4a3077d7242bdfb69790ca9b66f033cb3ebde085c58"

@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 from pydantic import BaseModel, model_validator, ConfigDict
 from typing import List, Self, Dict
 import pandas as pd
@@ -244,7 +245,7 @@ class TaxModel(BaseModel):
         r2 = self.results(amount + delta)["total payable"]
         return (r2 - r1) / delta
 
-    def sample(self, taxable_array: np.array) -> pd.DataFrame:
+    def sample(self, taxable_array: List[int] | None=None, income_range: tuple | None=None) -> pd.DataFrame:
         """
         Generates a DataFrame summarizing tax calculations for a range of amounts.
 
@@ -255,6 +256,17 @@ class TaxModel(BaseModel):
             pd.DataFrame: A DataFrame with calculated results for each taxable amount,
                           including marginal rates.
         """
+        if (taxable_array is None) and (income_range is None):
+            try:
+                taxable_array = range(12000, 60000, 100)
+            except:
+                raise ValueError()
+        if income_range is not None:
+            try:
+                taxable_array = range(*income_range)
+            except:
+                raise ValueError()
+
         cols = list(self.results(1).keys())
         results = [self.results(amount).values() for amount in taxable_array]
         df = pd.DataFrame(results, index=taxable_array, columns=cols)
@@ -273,3 +285,5 @@ class TaxModel(BaseModel):
     def df_cols(self) -> List:
         cols = list(self.sample(taxable_array=[10]).keys())
         return cols
+
+# todo: add Sample class and implement plot

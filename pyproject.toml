@@ -23,6 +23,7 @@ pyscaffold = "^4.6"
 seaborn = "^0.13.2"
 pycurrenciestools = "^1.0.2"
 importlib = "^1.0.4"
+multipledispatch = "^1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
