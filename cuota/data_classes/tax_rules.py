@@ -1,3 +1,5 @@
+from bdb import effective
+
 import matplotlib.pyplot as plt
 from pydantic import BaseModel, model_validator, ConfigDict
 from typing import List, Self, Dict
@@ -220,13 +222,16 @@ class TaxModel(BaseModel):
         for rule in self.tax_rules:
             payable = rule.get_payable(taxable)
             result[rule.name] = payable
+            result[f"{rule.name} effective rate"] = payable / amount
             if not self.non_sequential:
                 taxable -= payable
             total += payable
+        take_home = amount - total
+        effective_rate = total / amount if amount > 0 else 0
         result.update({
             "total payable": total,
-            "take home": amount - total,
-            "effective rate": total / amount if amount > 0 else 0,
+            "take home": take_home,
+            "effective rate": effective_rate
         })
         return result
 
@@ -294,10 +299,14 @@ class IncomeSample(BaseModel):
     def plot_metric(self, ax: plt.Axes, metric: str):
         df = self.df
         ax.plot(df.index, df[metric], label=metric)
+        plt.title(metric)
         return ax
 
     #  todo: fix this
-    def plot_all(self, ax: plt.Axes):
+    def plot_all(self):
         df = self.df
         for metric in df.columns:
-           self.plot_metric(ax=ax, metric=metric)
+            _, ax = plt.subplots()
+            self.plot_metric(ax=ax, metric=metric)
+
+# todo: fix top range of social security
